@@ -1,0 +1,21 @@
+
+
+services:
+  bot:
+    build: .
+    container_name: ship_ap
+    restart: always
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - API_KEY=${API_KEY}
+      - CHANNEL_NAME=${CHANNEL_NAME}
+      - MODEL=${MODEL}
+      - DATABASE_FILE=${DATABASE_FILE}
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+
+networks:
+  bot_network:
+    driver: bridge
