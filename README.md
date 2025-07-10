@@ -1,7 +1,5 @@
 # ShipAI 🚢
 
-A powerful Telegram bot for automated content scheduling and AI-powered text processing. ShipAI helps you manage and schedule posts to your Telegram channel with intelligent text enhancement and automatic timing.
-
 ## ✨ Features
 
 - **AI-Powered Text Processing**: Automatically enhances and optimizes your content using OpenAI
