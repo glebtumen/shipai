@@ -3,7 +3,7 @@
 services:
   bot:
     build: .
-    container_name: ship_ap
+    container_name: ship_ai
     restart: always
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
@@ -11,11 +11,14 @@ services:
       - CHANNEL_NAME=${CHANNEL_NAME}
       - MODEL=${MODEL}
       - DATABASE_FILE=${DATABASE_FILE}
+    networks:
+      - bot_network
     env_file:
       - .env
     volumes:
-      - .:/app
-
+      - ./images:/app/images
+      - ./articles.db:/app/articles.db
+    
 networks:
   bot_network:
     driver: bridge
