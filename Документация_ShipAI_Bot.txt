@@ -130,6 +130,22 @@ bot = Bot(token=BOT_TOKEN)  # Создаем объект бота с токен
 dp = Dispatcher()           # Диспетчер для обработки сообщений
 storage = MemoryStorage()   # Хранилище состояний в памяти
 
+
+Декоратор @admin_required
+
+def admin_required(func):
+    """Decorator to check if user is admin before executing command"""
+    async def wrapper(message: Message, *args, **kwargs):
+        user_id = message.from_user.id
+        if user_id not in ADMIN_USER_IDS:
+            await message.reply("❌ Доступ запрещен. Эта команда доступна только администраторам.")
+            logging.warning(f"Unauthorized access attempt by user {user_id} (@{message.from_user.username})")
+            return
+        return await func(message, *args, **kwargs)
+    return wrapper
+
+Проверяет, является ли пользователь администратором и вызывает функцию если он является.
+
 4.2 МАШИНА СОСТОЯНИЙ FSM (строки 41-45)
 ----------------------------------------
 
@@ -548,7 +564,7 @@ else:
 BOT_TOKEN=your_telegram_bot_token      # Токен бота от @BotFather
 API_KEY=your_openai_api_key           # Ключ OpenAI API
 CHANNEL_NAME=@your_channel_username   # Имя канала для публикаций
-MODEL=gpt-4.1-nano                    # Модель OpenAI
+MODEL=deepseek/deepseek-chat-v3-0324:free       # Модель 
 DATABASE_FILE=articles.db             # Файл базы данных
 
 ЗАЧЕМ .env ФАЙЛ:
