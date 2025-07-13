@@ -38,6 +38,7 @@ from database import (
     update_time_scheduled,
 )
 from openai import OpenAI
+import functools
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -47,13 +48,17 @@ ADMIN_USER_IDS = {505429653, 409472138}
 
 def admin_required(func):
     """Decorator to check if user is admin before executing command"""
-    async def wrapper(message: Message, *args, **kwargs):
+    
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        # Extract message from args (first argument)
+        message = args[0] if args else kwargs.get('message')
         user_id = message.from_user.id
         if user_id not in ADMIN_USER_IDS:
             await message.reply("❌ Доступ запрещен. Эта команда доступна только администраторам.")
             logging.warning(f"Unauthorized access attempt by user {user_id} (@{message.from_user.username})")
             return
-        return await func(message, *args, **kwargs)
+        return await func(*args, **kwargs)
     return wrapper
 
 # Initialize bot and dispatcher
@@ -181,8 +186,20 @@ async def skip_article_image(message: Message, state: FSMContext):
 
 @article_router.message(Command("cancel"))
 @admin_required
+async def cancel_command_handler(message: Message, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state is None:
+        await message.reply("Нет активной операции для отмены.")
+        return
+
+    logging.info("Cancelling state %r", current_state)
+    await state.clear()
+    await message.reply("Операция отменена.", reply_markup=ReplyKeyboardRemove())
+
+
 @article_router.message(F.text.casefold() == "cancel")
-async def cancel_handler(message: Message, state: FSMContext):
+@admin_required
+async def cancel_text_handler(message: Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state is None:
         await message.reply("Нет активной операции для отмены.")
